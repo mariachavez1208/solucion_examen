@@ -77,6 +77,7 @@ public class Main {
             System.out.println("3. Jamon");
             System.out.println("4. Chile Pimiento");
             System.out.println("5. Carne");
+            System.out.print("Seleccione una opcion: ");
 
             int opcionIngrediente = scanner.nextInt();
 
@@ -115,6 +116,14 @@ public class Main {
 
         Cocina cocina = new Cocina();
         cocina.agregarOrden(orden);
+
+        System.out.println("\n===== COMPARACION =====");
+
+        if (pizza == orden.getPizza()) {
+            System.out.println("La pizza creada es la misma pizza que pertenece a la orden.");
+        } else {
+            System.out.println("La pizza creada no es la misma pizza que pertenece a la orden.");
+        }
 
         scanner.close();
     }
