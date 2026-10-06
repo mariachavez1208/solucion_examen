@@ -1,4 +1,4 @@
-public enum TipoIngredientes {
+public enum TipoIngrediente {
     CEBOLLA,
     PEPPERONI,
     JAMON,
