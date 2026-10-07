@@ -1,130 +1,188 @@
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
+        JFrame frame = new JFrame("Simulador de Pizzas");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout(10, 10));
 
-        System.out.println("===== CREAR ORDEN =====");
+        JPanel formulario = new JPanel(new GridLayout(6, 2, 5, 5));
+        formulario.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        System.out.print("Ingrese su nombre: ");
-        String nombre = scanner.nextLine();
+        JTextField nombre = new JTextField();
 
-        System.out.println("\nMetodo de pago:");
-        System.out.println("1. Tarjeta");
-        System.out.println("2. Efectivo");
-        System.out.print("Seleccione una opcion: ");
-
-        int opcionPago = scanner.nextInt();
-
-        MetodoPago pago;
-
-        if (opcionPago == 1) {
-            pago = MetodoPago.TARJETA;
-        } else {
-            pago = MetodoPago.EFECTIVO;
-        }
-
-        System.out.println("\nSeleccione la base:");
-        System.out.println("1. Masa");
-        System.out.println("2. Pollo");
-        System.out.print("Seleccione una opcion: ");
-
-        int opcionBase = scanner.nextInt();
-
-        TipoBase base;
-
-        if (opcionBase == 1) {
-            base = TipoBase.MASA;
-        } else {
-            base = TipoBase.POLLO;
-        }
-
-        System.out.println("\nSeleccione la salsa:");
-        System.out.println("1. Normal");
-        System.out.println("2. Picante");
-        System.out.println("3. Blanca");
-        System.out.print("Seleccione una opcion: ");
-
-        int opcionSalsa = scanner.nextInt();
-
-        TipoSalsa salsa;
-
-        if (opcionSalsa == 1) {
-            salsa = TipoSalsa.NORMAL;
-        } else if (opcionSalsa == 2) {
-            salsa = TipoSalsa.PICANTE;
-        } else {
-            salsa = TipoSalsa.BLANCA;
-        }
-
-        Pizza pizza = new Pizza(base, salsa);
-
-        System.out.print("\nCuantos ingredientes desea agregar? (maximo 5): ");
-        int cantidadIngredientes = scanner.nextInt();
-
-        if (cantidadIngredientes > 5) {
-            cantidadIngredientes = 5;
-            System.out.println("Solo se pueden agregar 5 ingredientes.");
-        }
-
-        for (int i = 0; i < cantidadIngredientes; i++) {
-
-            System.out.println("\nSeleccione ingrediente " + (i + 1) + ":");
-            System.out.println("1. Cebolla");
-            System.out.println("2. Pepperoni");
-            System.out.println("3. Jamon");
-            System.out.println("4. Chile Pimiento");
-            System.out.println("5. Carne");
-            System.out.print("Seleccione una opcion: ");
-
-            int opcionIngrediente = scanner.nextInt();
-
-            if (opcionIngrediente == 1) {
-                pizza.agregarIngrediente(TipoIngrediente.CEBOLLA);
-
-            } else if (opcionIngrediente == 2) {
-                pizza.agregarIngrediente(TipoIngrediente.PEPPERONI);
-
-            } else if (opcionIngrediente == 3) {
-                pizza.agregarIngrediente(TipoIngrediente.JAMON);
-
-            } else if (opcionIngrediente == 4) {
-                pizza.agregarIngrediente(TipoIngrediente.CHILE_PIMIENTO);
-
-            } else if (opcionIngrediente == 5) {
-                pizza.agregarIngrediente(TipoIngrediente.CARNE);
-
-            } else {
-                System.out.println("Ingrediente no valido.");
-                i--;
-            }
-        }
-
-        Orden orden = new Orden(
-            nombre,
-            pago,
-            1,
-            pizza
+        JComboBox<String> pago = new JComboBox<>(
+            new String[]{"Tarjeta", "Efectivo"}
         );
 
-        System.out.println("\n===== SU ORDEN =====");
+        JComboBox<String> base = new JComboBox<>(
+            new String[]{"Masa", "Pollo"}
+        );
 
-        orden.mostrarOrden();
-        orden.pagar();
+        JComboBox<String> salsa = new JComboBox<>(
+            new String[]{"Normal", "Picante", "Blanca"}
+        );
 
-        Cocina cocina = new Cocina();
-        cocina.agregarOrden(orden);
+        formulario.add(new JLabel("Nombre:"));
+        formulario.add(nombre);
 
-        System.out.println("\n===== COMPARACION =====");
+        formulario.add(new JLabel("Metodo de pago:"));
+        formulario.add(pago);
 
-        if (pizza == orden.getPizza()) {
-            System.out.println("La pizza creada es la misma pizza que pertenece a la orden.");
-        } else {
-            System.out.println("La pizza creada no es la misma pizza que pertenece a la orden.");
-        }
+        formulario.add(new JLabel("Base:"));
+        formulario.add(base);
 
-        scanner.close();
+        formulario.add(new JLabel("Salsa:"));
+        formulario.add(salsa);
+
+        JCheckBox cebolla = new JCheckBox("Cebolla");
+        JCheckBox pepperoni = new JCheckBox("Pepperoni");
+        JCheckBox jamon = new JCheckBox("Jamon");
+        JCheckBox chile = new JCheckBox("Chile Pimiento");
+        JCheckBox carne = new JCheckBox("Carne");
+
+        JPanel ingredientes = new JPanel(new FlowLayout());
+
+        ingredientes.add(cebolla);
+        ingredientes.add(pepperoni);
+        ingredientes.add(jamon);
+        ingredientes.add(chile);
+        ingredientes.add(carne);
+
+        formulario.add(new JLabel("Ingredientes:"));
+        formulario.add(ingredientes);
+
+        JButton crearOrden = new JButton("Crear Orden");
+
+        JTextArea resultado = new JTextArea(10, 30);
+        resultado.setEditable(false);
+
+        crearOrden.addActionListener(e -> {
+
+            String nombreCliente = nombre.getText();
+
+            if (nombreCliente.isEmpty()) {
+                resultado.setText("Ingrese un nombre.");
+                return;
+            }
+
+            MetodoPago metodoPago;
+
+            if (pago.getSelectedIndex() == 0) {
+                metodoPago = MetodoPago.TARJETA;
+            } else {
+                metodoPago = MetodoPago.EFECTIVO;
+            }
+
+            TipoBase tipoBase;
+
+            if (base.getSelectedIndex() == 0) {
+                tipoBase = TipoBase.MASA;
+            } else {
+                tipoBase = TipoBase.POLLO;
+            }
+
+            TipoSalsa tipoSalsa;
+
+            if (salsa.getSelectedIndex() == 0) {
+                tipoSalsa = TipoSalsa.NORMAL;
+            } else if (salsa.getSelectedIndex() == 1) {
+                tipoSalsa = TipoSalsa.PICANTE;
+            } else {
+                tipoSalsa = TipoSalsa.BLANCA;
+            }
+
+            Pizza pizza = new Pizza(tipoBase, tipoSalsa);
+
+            if (cebolla.isSelected()) {
+                pizza.agregarIngrediente(
+                    TipoIngrediente.CEBOLLA
+                );
+            }
+
+            if (pepperoni.isSelected()) {
+                pizza.agregarIngrediente(
+                    TipoIngrediente.PEPPERONI
+                );
+            }
+
+            if (jamon.isSelected()) {
+                pizza.agregarIngrediente(
+                    TipoIngrediente.JAMON
+                );
+            }
+
+            if (chile.isSelected()) {
+                pizza.agregarIngrediente(
+                    TipoIngrediente.CHILE_PIMIENTO
+                );
+            }
+
+            if (carne.isSelected()) {
+                pizza.agregarIngrediente(
+                    TipoIngrediente.CARNE
+                );
+            }
+
+            Orden orden = new Orden(
+                nombreCliente,
+                metodoPago,
+                1,
+                pizza
+            );
+
+            String texto = "";
+
+            texto += "===== ORDEN =====\n";
+            texto += "Cliente: " + orden.getNombre() + "\n";
+            texto += "Numero de orden: "
+                    + orden.getNumeroOrden() + "\n";
+            texto += "Metodo de pago: "
+                    + orden.getPago() + "\n";
+
+            texto += "\n===== PIZZA =====\n";
+            texto += "Base: " + pizza.getBase() + "\n";
+            texto += "Salsa: " + pizza.getSalsa() + "\n";
+
+            texto += "Ingredientes:\n";
+
+            TipoIngrediente[] lista =
+                pizza.getIngredientes().getIngredientes();
+
+            for (int i = 0;
+                 i < pizza.getIngredientes().getCantidad();
+                 i++) {
+
+                texto += "- " + lista[i] + "\n";
+            }
+
+            texto += "\n===== COMPARACION =====\n";
+
+            if (pizza == orden.getPizza()) {
+                texto += "La pizza pertenece a esta orden.";
+            } else {
+                texto += "La pizza no pertenece a esta orden.";
+            }
+
+            resultado.setText(texto);
+        });
+
+        JPanel centro = new JPanel(new BorderLayout());
+
+        centro.add(formulario, BorderLayout.NORTH);
+        centro.add(crearOrden, BorderLayout.CENTER);
+        centro.add(
+            new JScrollPane(resultado),
+            BorderLayout.SOUTH
+        );
+
+        frame.add(centro);
+
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 }
